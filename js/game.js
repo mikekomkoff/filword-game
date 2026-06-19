@@ -1,4 +1,4 @@
-const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1], [-1, 0], [0, -1], [-1, 1], [-1, -1]];
 const LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
 
 class FilwordGame {
@@ -20,37 +20,19 @@ class FilwordGame {
     }
 
     generate() {
-        for (let attempt = 0; attempt < 2000; attempt++) {
+        for (let attempt = 0; attempt < 4000; attempt++) {
             const grid = Array.from({ length: this.size }, () => Array(this.size).fill(null));
             const placed = [];
             const words = [...this.targetWords].sort((a, b) => b.length - a.length);
             let ok = true;
 
             for (const word of words) {
-                const placements = [];
-
-                for (const [dr, dc] of DIRS) {
-                    for (let r = 0; r < this.size; r++) {
-                        for (let c = 0; c < this.size; c++) {
-                            let fit = true;
-                            for (let i = 0; i < word.length; i++) {
-                                const nr = r + dr * i;
-                                const nc = c + dc * i;
-                                if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { fit = false; break; }
-                                if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { fit = false; break; }
-                            }
-                            if (fit) placements.push({ row: r, col: c, dr, dc });
-                        }
-                    }
-                }
-
-                if (placements.length === 0) { ok = false; break; }
-
-                const p = placements[Math.floor(Math.random() * placements.length)];
+                const cells = this.findWordCells(grid, word);
+                if (!cells) { ok = false; break; }
                 for (let i = 0; i < word.length; i++) {
-                    grid[p.row + p.dr * i][p.col + p.dc * i] = word[i];
+                    grid[cells[i].row][cells[i].col] = word[i];
                 }
-                placed.push({ word, ...p });
+                placed.push({ word, cells });
             }
 
             if (ok) {
@@ -63,10 +45,93 @@ class FilwordGame {
                 }
                 this.grid = grid;
                 this.placedWords = placed;
-                return;
+
+                for (const pw of this.placedWords) {
+                    let wordOnGrid = '';
+                    for (const { row, col } of pw.cells) {
+                        wordOnGrid += this.grid[row][col];
+                    }
+                    if (wordOnGrid !== pw.word) { ok = false; break; }
+                }
+                if (ok) return;
             }
         }
         throw new Error('Не удалось сгенерировать поле');
+    }
+
+    findWordCells(grid, word) {
+        const straightPlacements = [];
+
+        for (const [dr, dc] of DIRS) {
+            for (let r = 0; r < this.size; r++) {
+                for (let c = 0; c < this.size; c++) {
+                    let fit = true;
+                    for (let i = 0; i < word.length; i++) {
+                        const nr = r + dr * i, nc = c + dc * i;
+                        if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { fit = false; break; }
+                        if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { fit = false; break; }
+                    }
+                    if (fit) {
+                        const cells = [];
+                        for (let i = 0; i < word.length; i++) cells.push({ row: r + dr * i, col: c + dc * i });
+                        straightPlacements.push(cells);
+                    }
+                }
+            }
+        }
+
+        if (word.length >= 3 && straightPlacements.length > 0) {
+            const emptyCount = grid.reduce((sum, row) => sum + row.filter(c => c === null).length, 0);
+            const emptyRatio = emptyCount / (this.size * this.size);
+            const lChance = Math.max(0, 0.4 - (1 - emptyRatio) * 0.6 - Math.max(0, word.length - 4) * 0.05);
+            if (Math.random() < lChance) {
+                const lCells = this.findLShape(grid, word);
+                if (lCells) return lCells;
+            }
+        }
+
+        if (straightPlacements.length > 0) {
+            return straightPlacements[Math.floor(Math.random() * straightPlacements.length)];
+        }
+
+        return this.findLShape(grid, word);
+    }
+
+    findLShape(grid, word) {
+        const N = word.length;
+        if (N < 3) return null;
+        const cardDirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
+
+        for (let attempt = 0; attempt < 500; attempt++) {
+            const r = Math.floor(Math.random() * this.size);
+            const c = Math.floor(Math.random() * this.size);
+            const [dr1, dc1] = cardDirs[Math.floor(Math.random() * 4)];
+            const split = 1 + Math.floor(Math.random() * (N - 2));
+
+            for (const [dr2, dc2] of [[dc1, -dr1], [-dc1, dr1]]) {
+                let ok = true;
+                for (let i = 0; i < split; i++) {
+                    const nr = r + dr1 * i, nc = c + dc1 * i;
+                    if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
+                    if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { ok = false; break; }
+                }
+                if (!ok) continue;
+
+                const tr = r + dr1 * (split - 1), tc = c + dc1 * (split - 1);
+                for (let i = 1; i <= N - split; i++) {
+                    const nr = tr + dr2 * i, nc = tc + dc2 * i;
+                    if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
+                    if (grid[nr][nc] !== null && grid[nr][nc] !== word[split - 1 + i]) { ok = false; break; }
+                }
+                if (!ok) continue;
+
+                const cells = [];
+                for (let i = 0; i < split; i++) cells.push({ row: r + dr1 * i, col: c + dc1 * i });
+                for (let i = 1; i <= N - split; i++) cells.push({ row: tr + dr2 * i, col: tc + dc2 * i });
+                return cells;
+            }
+        }
+        return null;
     }
 
     on(event, fn) {
@@ -92,23 +157,17 @@ class FilwordGame {
         if (Math.abs(dr) > 1 || Math.abs(dc) > 1) return;
         if (dr === 0 && dc === 0) return;
 
-        if (this.selectedCells.length >= 2) {
-            const prev = this.selectedCells[this.selectedCells.length - 2];
-            if (prev.row === row && prev.col === col) {
-                this.selectedCells.pop();
-                this.emit('selection-change', this.selectedCells);
-                return;
-            }
+        const prev = this.selectedCells.length >= 2
+            ? this.selectedCells[this.selectedCells.length - 2]
+            : null;
+        if (prev && prev.row === row && prev.col === col) {
+            this.selectedCells.pop();
+            this.emit('selection-change', this.selectedCells);
+            return;
         }
 
-        if (this.selectedCells.length >= 2) {
-            const f = this.selectedCells[0];
-            const s = this.selectedCells[1];
-            const dirR = s.row - f.row;
-            const dirC = s.col - f.col;
-            const expectedR = last.row + dirR;
-            const expectedC = last.col + dirC;
-            if (row !== expectedR || col !== expectedC) return;
+        for (const c of this.selectedCells) {
+            if (c.row === row && c.col === col) return;
         }
 
         this.selectedCells.push({ row, col });
@@ -119,20 +178,28 @@ class FilwordGame {
         this.isSelecting = false;
         if (this.selectedCells.length < 2) {
             this.selectedCells = [];
-            this.emit('selection-change', this.selectedCells);
+            this.emit('selection-change', []);
             return null;
         }
 
-        const word = this.selectedCells.map(({ row, col }) => this.grid[row][col]).join('');
-        const reversed = word.split('').reverse().join('');
+        const sel = this.selectedCells;
 
         let found = null;
-        for (const w of this.targetWords) {
-            if (this.foundWords.has(w)) continue;
-            if (w === word || w === reversed) { found = w; break; }
+        for (const pw of this.placedWords) {
+            if (this.foundWords.has(pw.word)) continue;
+            if (pw.cells.length !== sel.length) continue;
+
+            let match = true, revMatch = true;
+            for (let i = 0; i < sel.length; i++) {
+                if (sel[i].row !== pw.cells[i].row || sel[i].col !== pw.cells[i].col) match = false;
+                if (sel[i].row !== pw.cells[pw.cells.length - 1 - i].row ||
+                    sel[i].col !== pw.cells[pw.cells.length - 1 - i].col) revMatch = false;
+            }
+            if (match || revMatch) { found = pw.word; break; }
         }
 
         this.selectedCells = [];
+        this.emit('selection-change', []);
 
         if (found) {
             this.foundWords.add(found);
@@ -141,17 +208,9 @@ class FilwordGame {
                 this.stopTimer();
                 this.emit('game-complete', this.elapsed);
             }
-        } else {
-            this.emit('selection-change', []);
         }
 
         return found;
-    }
-
-    cancelSelection() {
-        this.isSelecting = false;
-        this.selectedCells = [];
-        this.emit('selection-change', []);
     }
 
     useHint() {
@@ -160,14 +219,17 @@ class FilwordGame {
         if (unfound.length === 0) return null;
 
         const target = unfound[Math.floor(Math.random() * unfound.length)];
-        const cells = [];
-        for (let i = 0; i < target.word.length; i++) {
-            cells.push({ row: target.row + target.dr * i, col: target.col + target.dc * i });
-        }
+        const cells = target.cells.map(c => ({ ...c }));
 
         this.hintsLeft--;
         this.emit('hint', cells);
         return cells;
+    }
+
+    getWordCells(word) {
+        const pw = this.placedWords.find(p => p.word === word);
+        if (!pw) return [];
+        return pw.cells.map(c => ({ ...c }));
     }
 
     startTimer() {

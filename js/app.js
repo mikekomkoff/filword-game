@@ -242,10 +242,8 @@ const App = {
 
         for (const pw of this.game.placedWords) {
             if (!this.game.foundWords.has(pw.word)) continue;
-            for (let i = 0; i < pw.word.length; i++) {
-                const r = pw.row + pw.dr * i;
-                const c = pw.col + pw.dc * i;
-                const cell = document.querySelector(`.grid-cell[data-row="${r}"][data-col="${c}"]`);
+            for (const { row, col } of pw.cells) {
+                const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
                 if (cell) cell.classList.add('found');
             }
         }
