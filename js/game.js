@@ -1,4 +1,4 @@
-const PRIMARY_DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+const PRIMARY_DIRS = [[0, 1], [1, 0]];
 const CARD_DIRS = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 const LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
 
@@ -62,7 +62,7 @@ class FilwordGame {
                     }
                     if (wordOnGrid !== pw.word) { ok = false; break; }
                 }
-                if (ok && placed.length >= 5) {
+                if (ok && placed.length >= 4) {
                     const counts = {};
                     for (const pw of placed) {
                         const key = dirKey(pw.cells[1].row - pw.cells[0].row, pw.cells[1].col - pw.cells[0].col);
@@ -70,7 +70,7 @@ class FilwordGame {
                     }
                     const dirs = Object.keys(counts).length;
                     const maxShare = Math.max(...Object.values(counts));
-                    if (dirs >= 3 && maxShare <= Math.ceil(placed.length * 0.4)) return;
+                    if (dirs >= 2 && maxShare <= Math.ceil(placed.length * 0.6)) return;
                 } else if (ok) {
                     return;
                 }
@@ -168,8 +168,7 @@ class FilwordGame {
         const dr = row - last.row;
         const dc = col - last.col;
 
-        if (Math.abs(dr) > 1 || Math.abs(dc) > 1) return;
-        if (dr === 0 && dc === 0) return;
+        if (Math.abs(dr) + Math.abs(dc) !== 1) return;
 
         const prev = this.selectedCells.length >= 2
             ? this.selectedCells[this.selectedCells.length - 2]
