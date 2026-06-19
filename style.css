@@ -238,6 +238,7 @@ h1 {
     display: inline-grid;
     gap: var(--grid-gap);
     position: relative;
+    touch-action: none;
 }
 
 .grid-cell {

@@ -91,29 +91,18 @@ const App = {
             this.startGame();
         });
 
-        const gridEl = document.getElementById('grid');
-
-        gridEl.addEventListener('pointerdown', (e) => {
-            if (!this.game || this.isLevelComplete) return;
-            const cell = e.target.closest('.grid-cell');
-            if (!cell) return;
-            const row = parseInt(cell.dataset.row);
-            const col = parseInt(cell.dataset.col);
-            this.game.beginSelection(row, col);
-            this.syncCellVisuals();
-        });
-
-        gridEl.addEventListener('pointermove', (e) => {
+        this._onPointerMove = (e) => {
             if (!this.game || !this.game.isSelecting || this.isLevelComplete) return;
-            const cell = e.target.closest('.grid-cell');
+            const el = document.elementFromPoint(e.clientX, e.clientY);
+            const cell = el?.closest('.grid-cell');
             if (!cell) return;
             const row = parseInt(cell.dataset.row);
             const col = parseInt(cell.dataset.col);
             this.game.continueSelection(row, col);
             this.syncCellVisuals();
-        });
+        };
 
-        document.addEventListener('pointerup', () => {
+        this._onPointerUp = () => {
             if (!this.game || !this.game.isSelecting) return;
             const selectLen = this.game.selectedCells.length;
             const found = this.game.endSelection();
@@ -122,7 +111,22 @@ const App = {
             if (!found && selectLen >= 2) {
                 this.haptic('error');
             }
-        });
+        };
+
+        this._onPointerDown = (e) => {
+            if (!this.game || this.isLevelComplete) return;
+            const cell = e.target.closest('.grid-cell');
+            if (!cell) return;
+            const row = parseInt(cell.dataset.row);
+            const col = parseInt(cell.dataset.col);
+            this.game.beginSelection(row, col);
+            this.syncCellVisuals();
+        };
+
+        const gridEl = document.getElementById('grid');
+        gridEl.addEventListener('pointerdown', this._onPointerDown);
+        document.addEventListener('pointermove', this._onPointerMove);
+        document.addEventListener('pointerup', this._onPointerUp);
     },
 
     bindWinScreen() {
