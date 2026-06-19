@@ -1,5 +1,11 @@
-const DIRS = [[0, 1], [1, 0], [1, 1], [1, -1], [-1, 0], [0, -1], [-1, 1], [-1, -1]];
+const PRIMARY_DIRS = [[0, 1], [1, 0], [1, 1], [1, -1]];
+const CARD_DIRS = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 const LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+
+function dirKey(dr, dc) {
+    if (dr < 0 || (dr === 0 && dc < 0)) { dr = -dr; dc = -dc; }
+    return dr + ',' + dc;
+}
 
 class FilwordGame {
     constructor(size, words) {
@@ -24,14 +30,17 @@ class FilwordGame {
             const grid = Array.from({ length: this.size }, () => Array(this.size).fill(null));
             const placed = [];
             const words = [...this.targetWords].sort((a, b) => b.length - a.length);
+            const dirCount = {};
             let ok = true;
 
             for (const word of words) {
-                const cells = this.findWordCells(grid, word);
+                const cells = this.findWordCells(grid, word, dirCount);
                 if (!cells) { ok = false; break; }
                 for (let i = 0; i < word.length; i++) {
                     grid[cells[i].row][cells[i].col] = word[i];
                 }
+                const key = dirKey(cells[1].row - cells[0].row, cells[1].col - cells[0].col);
+                dirCount[key] = (dirCount[key] || 0) + 1;
                 placed.push({ word, cells });
             }
 
@@ -53,16 +62,27 @@ class FilwordGame {
                     }
                     if (wordOnGrid !== pw.word) { ok = false; break; }
                 }
-                if (ok) return;
+                if (ok && placed.length >= 5) {
+                    const counts = {};
+                    for (const pw of placed) {
+                        const key = dirKey(pw.cells[1].row - pw.cells[0].row, pw.cells[1].col - pw.cells[0].col);
+                        counts[key] = (counts[key] || 0) + 1;
+                    }
+                    const dirs = Object.keys(counts).length;
+                    const maxShare = Math.max(...Object.values(counts));
+                    if (dirs >= 3 && maxShare <= Math.ceil(placed.length * 0.4)) return;
+                } else if (ok) {
+                    return;
+                }
             }
         }
         throw new Error('Не удалось сгенерировать поле');
     }
 
-    findWordCells(grid, word) {
-        const straightPlacements = [];
+    findWordCells(grid, word, dirCount) {
+        const placementsByDir = {};
 
-        for (const [dr, dc] of DIRS) {
+        for (const [dr, dc] of PRIMARY_DIRS) {
             for (let r = 0; r < this.size; r++) {
                 for (let c = 0; c < this.size; c++) {
                     let fit = true;
@@ -74,64 +94,58 @@ class FilwordGame {
                     if (fit) {
                         const cells = [];
                         for (let i = 0; i < word.length; i++) cells.push({ row: r + dr * i, col: c + dc * i });
-                        straightPlacements.push(cells);
+                        const key = dirKey(dr, dc);
+                        (placementsByDir[key] = placementsByDir[key] || []).push(cells);
                     }
                 }
             }
         }
 
-        if (word.length >= 3 && straightPlacements.length > 0) {
+        if (word.length >= 3) {
             const emptyCount = grid.reduce((sum, row) => sum + row.filter(c => c === null).length, 0);
             const emptyRatio = emptyCount / (this.size * this.size);
-            const lChance = Math.max(0, 0.4 - (1 - emptyRatio) * 0.6 - Math.max(0, word.length - 4) * 0.05);
-            if (Math.random() < lChance) {
-                const lCells = this.findLShape(grid, word);
-                if (lCells) return lCells;
+
+            for (const [dr1, dc1] of CARD_DIRS) {
+                for (let split = 1; split < word.length - 1; split++) {
+                    for (const [dr2, dc2] of [[dc1, -dr1], [-dc1, dr1]]) {
+                        for (let a = 0; a < Math.ceil(50 / (this.size + word.length)); a++) {
+                            const r = Math.floor(Math.random() * this.size);
+                            const c = Math.floor(Math.random() * this.size);
+                            let ok = true;
+                            for (let i = 0; i < split; i++) {
+                                const nr = r + dr1 * i, nc = c + dc1 * i;
+                                if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
+                                if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { ok = false; break; }
+                            }
+                            if (!ok) continue;
+                            const tr = r + dr1 * (split - 1), tc = c + dc1 * (split - 1);
+                            for (let i = 1; i <= word.length - split; i++) {
+                                const nr = tr + dr2 * i, nc = tc + dc2 * i;
+                                if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
+                                if (grid[nr][nc] !== null && grid[nr][nc] !== word[split - 1 + i]) { ok = false; break; }
+                            }
+                            if (!ok) continue;
+
+                            if (Math.random() < 0.4 - (1 - emptyRatio) * 0.5 - Math.max(0, word.length - 4) * 0.05) {
+                                const cells = [];
+                                for (let i = 0; i < split; i++) cells.push({ row: r + dr1 * i, col: c + dc1 * i });
+                                for (let i = 1; i <= word.length - split; i++) cells.push({ row: tr + dr2 * i, col: tc + dc2 * i });
+                                return cells;
+                            }
+                        }
+                    }
+                }
             }
         }
 
-        if (straightPlacements.length > 0) {
-            return straightPlacements[Math.floor(Math.random() * straightPlacements.length)];
-        }
+        const dirs = Object.keys(placementsByDir);
+        if (dirs.length === 0) return null;
 
-        return this.findLShape(grid, word);
-    }
-
-    findLShape(grid, word) {
-        const N = word.length;
-        if (N < 3) return null;
-        const cardDirs = [[0, 1], [1, 0], [0, -1], [-1, 0]];
-
-        for (let attempt = 0; attempt < 500; attempt++) {
-            const r = Math.floor(Math.random() * this.size);
-            const c = Math.floor(Math.random() * this.size);
-            const [dr1, dc1] = cardDirs[Math.floor(Math.random() * 4)];
-            const split = 1 + Math.floor(Math.random() * (N - 2));
-
-            for (const [dr2, dc2] of [[dc1, -dr1], [-dc1, dr1]]) {
-                let ok = true;
-                for (let i = 0; i < split; i++) {
-                    const nr = r + dr1 * i, nc = c + dc1 * i;
-                    if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
-                    if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { ok = false; break; }
-                }
-                if (!ok) continue;
-
-                const tr = r + dr1 * (split - 1), tc = c + dc1 * (split - 1);
-                for (let i = 1; i <= N - split; i++) {
-                    const nr = tr + dr2 * i, nc = tc + dc2 * i;
-                    if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
-                    if (grid[nr][nc] !== null && grid[nr][nc] !== word[split - 1 + i]) { ok = false; break; }
-                }
-                if (!ok) continue;
-
-                const cells = [];
-                for (let i = 0; i < split; i++) cells.push({ row: r + dr1 * i, col: c + dc1 * i });
-                for (let i = 1; i <= N - split; i++) cells.push({ row: tr + dr2 * i, col: tc + dc2 * i });
-                return cells;
-            }
-        }
-        return null;
+        const minCount = Math.min(...dirs.map(d => dirCount[d] || 0));
+        const bestDirs = dirs.filter(d => (dirCount[d] || 0) === minCount);
+        const chosenDir = bestDirs[Math.floor(Math.random() * bestDirs.length)];
+        const pool = placementsByDir[chosenDir];
+        return pool[Math.floor(Math.random() * pool.length)];
     }
 
     on(event, fn) {
