@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Филворды</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div id="app">
+        <div id="start-screen" class="screen active">
+            <div class="start-content">
+                <div class="logo">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect x="4" y="4" width="72" height="72" rx="16" fill="var(--tg-theme-button-color, #40a7e3)"/>
+                        <text x="40" y="52" text-anchor="middle" font-size="36" font-weight="bold" fill="var(--tg-theme-button-text-color, #fff)">Ф</text>
+                    </svg>
+                </div>
+                <h1>Филворды</h1>
+                <p class="subtitle">Найди все слова на поле</p>
+
+                <div class="difficulty-section">
+                    <label>Уровень сложности</label>
+                    <div class="difficulty-buttons" id="difficulty-buttons">
+                        <button class="diff-btn active" data-level="easy">Легко</button>
+                        <button class="diff-btn" data-level="normal">Нормально</button>
+                        <button class="diff-btn" data-level="medium">Средне</button>
+                        <button class="diff-btn" data-level="hard">Сложно</button>
+                    </div>
+                </div>
+
+                <button class="primary-btn" id="start-btn">Начать игру</button>
+            </div>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-header">
+                <button class="icon-btn" id="back-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <div class="timer" id="timer">00:00</div>
+                <div class="hints-count" id="hints-count">0</div>
+            </div>
+
+            <div class="word-list" id="word-list"></div>
+
+            <div class="grid-wrapper">
+                <div class="grid-container">
+                    <div id="grid"></div>
+                </div>
+                <div class="selection-line" id="selection-line"></div>
+            </div>
+
+            <div class="game-footer">
+                <button class="ghost-btn" id="hint-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                        <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    Подсказка
+                </button>
+                <button class="ghost-btn" id="new-game-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M3.51 15C4.16 17.41 5.91 19.4 8.21 20.43C12.3 22.17 17.11 20.43 18.85 16.34C20.59 12.25 18.85 7.44 14.76 5.7C12.46 4.67 9.76 4.87 7.65 6.17L1 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Новая
+                </button>
+            </div>
+        </div>
+
+        <div id="win-screen" class="screen">
+            <div class="win-content">
+                <div class="win-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <circle cx="40" cy="40" r="36" fill="var(--tg-theme-button-color, #40a7e3)" opacity="0.15"/>
+                        <path d="M24 40L34 50L56 28" stroke="var(--tg-theme-button-color, #40a7e3)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <h2>Уровень пройден!</h2>
+                <p class="win-time">Время: <span id="final-time">00:00</span></p>
+                <button class="primary-btn" id="next-level-btn">Следующий уровень</button>
+                <button class="ghost-btn" id="menu-btn">В меню</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/words.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
