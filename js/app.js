@@ -5,6 +5,18 @@ const App = {
     gridGap: 3,
     isLevelComplete: false,
     hintTimeout: null,
+    wordColors: null,
+
+    colorPalette: [
+        '#e67e22',
+        '#2ecc71',
+        '#3498db',
+        '#f39c12',
+        '#9b59b6',
+        '#1abc9c',
+        '#e91e63',
+        '#00bcd4'
+    ],
 
     init() {
         this.setupTelegram();
@@ -150,6 +162,7 @@ const App = {
     exitGame() {
         if (this.game) this.game.destroy();
         this.game = null;
+        this.wordColors = null;
         this.isLevelComplete = false;
         this.showScreen('start-screen');
     },
@@ -169,6 +182,10 @@ const App = {
         }
 
         this.isLevelComplete = false;
+        this.wordColors = {};
+        wordSet.forEach((word, i) => {
+            this.wordColors[word] = this.colorPalette[i % this.colorPalette.length];
+        });
         this.calculateCellSize();
 
         this.game.on('timer', (seconds) => {
@@ -238,13 +255,22 @@ const App = {
 
     renderFoundCells() {
         if (!this.game) return;
-        document.querySelectorAll('.grid-cell.found').forEach(el => el.classList.remove('found'));
+        document.querySelectorAll('.grid-cell.found').forEach(el => {
+            el.classList.remove('found');
+            el.style.backgroundColor = '';
+            el.style.color = '';
+        });
 
         for (const pw of this.game.placedWords) {
             if (!this.game.foundWords.has(pw.word)) continue;
+            const color = this.wordColors[pw.word];
             for (const { row, col } of pw.cells) {
                 const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
-                if (cell) cell.classList.add('found');
+                if (cell) {
+                    cell.classList.add('found');
+                    cell.style.backgroundColor = color;
+                    cell.style.color = '#fff';
+                }
             }
         }
     },
@@ -256,7 +282,11 @@ const App = {
         for (const word of this.game.targetWords) {
             const chip = document.createElement('span');
             chip.className = 'word-chip';
-            if (this.game.foundWords.has(word)) chip.classList.add('found');
+            if (this.game.foundWords.has(word)) {
+                chip.classList.add('found');
+                chip.style.backgroundColor = this.wordColors[word];
+                chip.style.color = '#fff';
+            }
             chip.textContent = word;
             listEl.appendChild(chip);
         }
