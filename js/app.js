@@ -5,6 +5,7 @@ const App = {
     gridGap: 3,
     isLevelComplete: false,
     hintTimeout: null,
+    selectedTopics: new Set(),
 
     init() {
         this.setupTelegram();
@@ -12,6 +13,7 @@ const App = {
         this.bindStartScreen();
         this.bindGameScreen();
         this.bindWinScreen();
+        this.renderTopics();
         this.showScreen('start-screen');
 
         window.addEventListener('resize', () => {
@@ -153,6 +155,10 @@ const App = {
     },
 
     exitGame() {
+        if (this.hintTimeout) {
+            clearTimeout(this.hintTimeout);
+            this.hintTimeout = null;
+        }
         if (this.game) this.game.destroy();
         this.game = null;
         this.isLevelComplete = false;
@@ -160,9 +166,21 @@ const App = {
     },
 
     startGame() {
+        if (this.hintTimeout) {
+            clearTimeout(this.hintTimeout);
+            this.hintTimeout = null;
+        }
+
         const config = WORDS_BY_DIFFICULTY[this.difficulty];
-        const sets = config.sets;
-        const wordSet = sets[Math.floor(Math.random() * sets.length)];
+        let sets = config.sets;
+        if (this.selectedTopics.size > 0) {
+            sets = sets.filter(s => this.selectedTopics.has(s.topic));
+        }
+        if (sets.length === 0) {
+            alert('Нет наборов по выбранным темам. Выберите другие темы или нажмите «Все темы».');
+            return;
+        }
+        const wordSet = sets[Math.floor(Math.random() * sets.length)].words;
 
         if (this.game) this.game.destroy();
 
@@ -202,7 +220,9 @@ const App = {
     calculateCellSize() {
         if (!this.game) return;
         const size = this.game.size;
-        const gapTotal = this.gridGap * (size - 1);
+        const gapStr = getComputedStyle(document.documentElement).getPropertyValue('--grid-gap');
+        const gap = parseInt(gapStr) || 3;
+        const gapTotal = gap * (size - 1);
         const maxW = window.innerWidth - 32;
         const maxH = window.innerHeight * 0.52;
         const cellW = Math.floor((maxW - gapTotal) / size);
@@ -279,7 +299,10 @@ const App = {
     },
 
     flashHint(cells) {
-        if (this.hintTimeout) clearTimeout(this.hintTimeout);
+        if (this.hintTimeout) {
+            clearTimeout(this.hintTimeout);
+            document.querySelectorAll('.grid-cell.hint').forEach(el => el.classList.remove('hint'));
+        }
 
         cells.forEach(({ row, col }) => {
             const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
@@ -290,6 +313,35 @@ const App = {
             document.querySelectorAll('.grid-cell.hint').forEach(el => el.classList.remove('hint'));
             this.hintTimeout = null;
         }, 1200);
+    },
+
+    renderTopics() {
+        const listEl = document.getElementById('topic-list');
+        listEl.innerHTML = '';
+
+        const allBtn = document.createElement('button');
+        allBtn.className = 'topic-chip' + (this.selectedTopics.size === 0 ? ' active' : '');
+        allBtn.textContent = 'Все темы';
+        allBtn.addEventListener('click', () => {
+            this.selectedTopics.clear();
+            this.renderTopics();
+        });
+        listEl.appendChild(allBtn);
+
+        for (const topic of TOPICS) {
+            const chip = document.createElement('button');
+            chip.className = 'topic-chip' + (this.selectedTopics.has(topic) ? ' active' : '');
+            chip.textContent = topic;
+            chip.addEventListener('click', () => {
+                if (this.selectedTopics.has(topic)) {
+                    this.selectedTopics.delete(topic);
+                } else {
+                    this.selectedTopics.add(topic);
+                }
+                this.renderTopics();
+            });
+            listEl.appendChild(chip);
+        }
     },
 
     showScreen(id) {

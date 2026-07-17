@@ -10,7 +10,7 @@ function dirKey(dr, dc) {
 class FilwordGame {
     constructor(size, words) {
         this.size = size;
-        this.targetWords = words;
+        this.targetWords = [...new Set(words)];
         this.grid = [];
         this.placedWords = [];
         this.foundWords = new Set();
@@ -62,7 +62,7 @@ class FilwordGame {
                     }
                     if (wordOnGrid !== pw.word) { ok = false; break; }
                 }
-                if (ok && placed.length >= 4) {
+                if (ok) {
                     const counts = {};
                     for (const pw of placed) {
                         const key = dirKey(pw.cells[1].row - pw.cells[0].row, pw.cells[1].col - pw.cells[0].col);
@@ -71,8 +71,6 @@ class FilwordGame {
                     const dirs = Object.keys(counts).length;
                     const maxShare = Math.max(...Object.values(counts));
                     if (dirs >= 2 && maxShare <= Math.ceil(placed.length * 0.6)) return;
-                } else if (ok) {
-                    return;
                 }
             }
         }
