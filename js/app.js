@@ -1,3 +1,14 @@
+const WORD_COLORS = [
+    '#E74C3C',
+    '#2ECC71',
+    '#3498DB',
+    '#F39C12',
+    '#9B59B6',
+    '#1ABC9C',
+    '#E67E22',
+    '#2980B9',
+];
+
 const App = {
     game: null,
     difficulty: 'easy',
@@ -6,6 +17,7 @@ const App = {
     isLevelComplete: false,
     hintTimeout: null,
     selectedTopics: new Set(),
+    audioCtx: null,
 
     init() {
         this.setupTelegram();
@@ -35,6 +47,48 @@ const App = {
             else if (type === 'error') this.tg.HapticFeedback.notificationOccurred('error');
             else this.tg.HapticFeedback.impactOccurred('light');
         }
+    },
+
+    getAudioCtx() {
+        if (!this.audioCtx) this.audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (this.audioCtx.state === 'suspended') this.audioCtx.resume();
+        return this.audioCtx;
+    },
+
+    playTone(freq, duration, startTime, type) {
+        const ctx = this.getAudioCtx();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = type || 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + duration);
+    },
+
+    playFound() {
+        const ctx = this.getAudioCtx();
+        const t = ctx.currentTime;
+        this.playTone(523, 0.08, t, 'sine');
+        this.playTone(659, 0.08, t + 0.06, 'sine');
+        this.playTone(784, 0.12, t + 0.12, 'sine');
+    },
+
+    playError() {
+        const ctx = this.getAudioCtx();
+        const t = ctx.currentTime;
+        this.playTone(200, 0.15, t, 'square');
+    },
+
+    playComplete() {
+        const ctx = this.getAudioCtx();
+        const t = ctx.currentTime;
+        [523, 587, 659, 784, 1047].forEach((f, i) => {
+            this.playTone(f, 0.15, t + i * 0.1, 'sine');
+        });
     },
 
     setupTheme() {
@@ -112,6 +166,7 @@ const App = {
             this.renderWordList();
             if (!found && selectLen >= 2) {
                 this.haptic('error');
+                this.playError();
             }
         };
 
@@ -200,12 +255,16 @@ const App = {
 
         this.game.on('word-found', () => {
             this.haptic('success');
+            this.playFound();
             this.renderWordList();
             this.renderFoundCells();
+            this.updateProgress();
         });
 
         this.game.on('game-complete', (time) => {
             this.isLevelComplete = true;
+            this.haptic('success');
+            this.playComplete();
             document.getElementById('final-time').textContent = this.game.formatTime(time);
             setTimeout(() => this.showScreen('win-screen'), 500);
         });
@@ -213,6 +272,7 @@ const App = {
         this.renderGrid();
         this.renderWordList();
         this.updateHintsCount();
+        this.updateProgress();
         this.showScreen('game-screen');
         this.game.startTimer();
     },
@@ -246,6 +306,8 @@ const App = {
                 cell.dataset.row = r;
                 cell.dataset.col = c;
                 cell.textContent = this.game.grid[r][c].toUpperCase();
+                cell.style.animationDelay = (r * this.game.size + c) * 15 + 'ms';
+                cell.classList.add('cell-appear');
                 gridEl.appendChild(cell);
             }
         }
@@ -263,13 +325,23 @@ const App = {
 
     renderFoundCells() {
         if (!this.game) return;
-        document.querySelectorAll('.grid-cell.found').forEach(el => el.classList.remove('found'));
+        document.querySelectorAll('.grid-cell.found').forEach(el => {
+            el.classList.remove('found');
+            el.style.background = '';
+            el.style.color = '';
+        });
 
-        for (const pw of this.game.placedWords) {
+        for (let i = 0; i < this.game.placedWords.length; i++) {
+            const pw = this.game.placedWords[i];
             if (!this.game.foundWords.has(pw.word)) continue;
+            const color = WORD_COLORS[i % WORD_COLORS.length];
             for (const { row, col } of pw.cells) {
                 const cell = document.querySelector(`.grid-cell[data-row="${row}"][data-col="${col}"]`);
-                if (cell) cell.classList.add('found');
+                if (cell) {
+                    cell.classList.add('found');
+                    cell.style.background = color;
+                    cell.style.color = '#fff';
+                }
             }
         }
     },
@@ -283,11 +355,18 @@ const App = {
         }
         listEl.style.display = '';
         listEl.innerHTML = '';
-        for (const word of this.game.targetWords) {
+        for (let i = 0; i < this.game.targetWords.length; i++) {
+            const word = this.game.targetWords[i];
             const chip = document.createElement('span');
             chip.className = 'word-chip';
-            if (this.game.foundWords.has(word)) chip.classList.add('found');
             chip.textContent = word;
+            if (this.game.foundWords.has(word)) {
+                chip.classList.add('found');
+                const color = WORD_COLORS[i % WORD_COLORS.length];
+                chip.style.background = color;
+                chip.style.color = '#fff';
+                chip.style.borderColor = color;
+            }
             listEl.appendChild(chip);
         }
     },
@@ -296,6 +375,16 @@ const App = {
         if (!this.game) return;
         const el = document.getElementById('hints-count');
         el.textContent = '\uD83D\uDCA1' + this.game.hintsLeft;
+    },
+
+    updateProgress() {
+        if (!this.game) return;
+        const found = this.game.foundWords.size;
+        const total = this.game.targetWords.length;
+        const bar = document.getElementById('progress-fill');
+        const text = document.getElementById('progress-text');
+        if (bar) bar.style.width = (total > 0 ? (found / total) * 100 : 0) + '%';
+        if (text) text.textContent = found + '/' + total;
     },
 
     flashHint(cells) {
