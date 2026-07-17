@@ -267,9 +267,34 @@ h1 {
 
 .word-chip.found {
     text-decoration: line-through;
-    opacity: 0.6;
+    opacity: 0.85;
+}
+
+/* ─── PROGRESS BAR ─── */
+.progress-bar {
+    position: relative;
+    height: 6px;
+    margin: 0 16px;
+    background: var(--tg-theme-secondary-bg-color);
+    border-radius: 3px;
+    overflow: visible;
+}
+
+.progress-fill {
+    height: 100%;
+    width: 0%;
     background: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
+    border-radius: 3px;
+    transition: width 0.4s ease;
+}
+
+.progress-text {
+    position: absolute;
+    right: 0;
+    top: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color);
 }
 
 /* ─── GRID ─── */
@@ -323,9 +348,23 @@ h1 {
 }
 
 .grid-cell.found {
-    background: var(--tg-theme-button-color);
-    color: var(--tg-theme-button-text-color);
-    opacity: 0.85;
+    opacity: 0.9;
+    animation: word-found 0.35s ease;
+}
+
+@keyframes word-found {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+}
+
+@keyframes cell-appear {
+    from { opacity: 0; transform: scale(0.7); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.cell-appear {
+    animation: cell-appear 0.25s ease both;
 }
 
 .grid-cell.hint {
