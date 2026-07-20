@@ -20,6 +20,7 @@ const App = {
     revealWordsTimeout: null,
     wordsRevealLeft: 0,
     selectedTopics: new Set(),
+    selectedGeneration: null,
     audioCtx: null,
 
     init() {
@@ -29,6 +30,7 @@ const App = {
         this.bindGameScreen();
         this.bindWinScreen();
         this.renderTopics();
+        this.renderGenerations();
         this.showScreen('start-screen');
 
         window.addEventListener('resize', () => {
@@ -339,6 +341,11 @@ const App = {
             for (let i = 0; i < today.length; i++) seed = ((seed << 5) - seed) + today.charCodeAt(i);
             const idx = ((seed % config.sets.length) + config.sets.length) % config.sets.length;
             chosen = config.sets[idx];
+        } else if (this.selectedGeneration) {
+            const gen = GENERATIONS.find(g => g.id === this.selectedGeneration);
+            if (!gen) { alert('Поколение не найдено'); return; }
+            const set = gen.sets[Math.floor(Math.random() * gen.sets.length)];
+            chosen = { words: set, topic: gen.label };
         } else {
             let sets = config.sets;
             if (this.selectedTopics.size > 0) {
@@ -582,7 +589,9 @@ const App = {
         allBtn.textContent = 'Все темы';
         allBtn.addEventListener('click', () => {
             this.selectedTopics.clear();
+            this.selectedGeneration = null;
             this.renderTopics();
+            this.renderGenerations();
         });
         listEl.appendChild(allBtn);
 
@@ -595,8 +604,38 @@ const App = {
                     this.selectedTopics.delete(topic);
                 } else {
                     this.selectedTopics.add(topic);
+                    this.selectedGeneration = null;
                 }
                 this.renderTopics();
+                this.renderGenerations();
+            });
+            listEl.appendChild(chip);
+        }
+    },
+
+    renderGenerations() {
+        const listEl = document.getElementById('gen-list');
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        const clearBtn = document.createElement('button');
+        clearBtn.className = 'gen-chip' + (this.selectedGeneration === null ? ' active' : '');
+        clearBtn.textContent = 'Все';
+        clearBtn.addEventListener('click', () => {
+            this.selectedGeneration = null;
+            this.renderGenerations();
+        });
+        listEl.appendChild(clearBtn);
+
+        for (const gen of GENERATIONS) {
+            const chip = document.createElement('button');
+            chip.className = 'gen-chip' + (this.selectedGeneration === gen.id ? ' active' : '');
+            chip.innerHTML = gen.label + ' <span class="gen-years">' + gen.years + '</span>';
+            chip.addEventListener('click', () => {
+                this.selectedGeneration = gen.id;
+                this.selectedTopics.clear();
+                this.renderTopics();
+                this.renderGenerations();
             });
             listEl.appendChild(chip);
         }
