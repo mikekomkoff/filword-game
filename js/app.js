@@ -16,6 +16,8 @@ const App = {
     gridGap: 3,
     isLevelComplete: false,
     hintTimeout: null,
+    revealWordsTimeout: null,
+    wordsRevealLeft: 0,
     selectedTopics: new Set(),
     audioCtx: null,
 
@@ -147,6 +149,10 @@ const App = {
             this.startGame();
         });
 
+        document.getElementById('reveal-words-btn').addEventListener('click', () => {
+            this.revealWords();
+        });
+
         this._onPointerMove = (e) => {
             if (!this.game || !this.game.isSelecting || this.isLevelComplete) return;
             const el = document.elementFromPoint(e.clientX, e.clientY);
@@ -214,6 +220,10 @@ const App = {
             clearTimeout(this.hintTimeout);
             this.hintTimeout = null;
         }
+        if (this.revealWordsTimeout) {
+            clearTimeout(this.revealWordsTimeout);
+            this.revealWordsTimeout = null;
+        }
         if (this.game) this.game.destroy();
         this.game = null;
         this.isLevelComplete = false;
@@ -225,6 +235,10 @@ const App = {
             clearTimeout(this.hintTimeout);
             this.hintTimeout = null;
         }
+        if (this.revealWordsTimeout) {
+            clearTimeout(this.revealWordsTimeout);
+            this.revealWordsTimeout = null;
+        }
 
         const config = WORDS_BY_DIFFICULTY[this.difficulty];
         let sets = config.sets;
@@ -235,7 +249,9 @@ const App = {
             alert('Нет наборов по выбранным темам. Выберите другие темы или нажмите «Все темы».');
             return;
         }
-        const wordSet = sets[Math.floor(Math.random() * sets.length)].words;
+        const chosen = sets[Math.floor(Math.random() * sets.length)];
+        const wordSet = chosen.words;
+        const topic = chosen.topic;
 
         if (this.game) this.game.destroy();
 
@@ -248,6 +264,20 @@ const App = {
 
         this.isLevelComplete = false;
         this.calculateCellSize();
+
+        const topicEl = document.getElementById('topic-label');
+        topicEl.textContent = topic;
+        topicEl.style.display = '';
+
+        const revealBtn = document.getElementById('reveal-words-btn');
+        const isRevealLevel = this.difficulty === 'medium' || this.difficulty === 'hard';
+        revealBtn.style.display = isRevealLevel ? '' : 'none';
+        this.wordsRevealLeft = isRevealLevel ? 3 : 0;
+        this.updateWordsRevealCount();
+
+        const revealedEl = document.getElementById('revealed-words');
+        revealedEl.classList.remove('visible');
+        revealedEl.innerHTML = '';
 
         this.game.on('timer', (seconds) => {
             document.getElementById('timer').textContent = this.game.formatTime(seconds);
@@ -402,6 +432,37 @@ const App = {
             document.querySelectorAll('.grid-cell.hint').forEach(el => el.classList.remove('hint'));
             this.hintTimeout = null;
         }, 1200);
+    },
+
+    updateWordsRevealCount() {
+        const el = document.getElementById('reveal-count');
+        if (el) el.textContent = this.wordsRevealLeft;
+    },
+
+    revealWords() {
+        if (!this.game || this.isLevelComplete || this.wordsRevealLeft <= 0) return;
+        this.wordsRevealLeft--;
+        this.updateWordsRevealCount();
+
+        const unfound = this.game.targetWords.filter(w => !this.game.foundWords.has(w));
+        if (unfound.length === 0) return;
+
+        const revealedEl = document.getElementById('revealed-words');
+        revealedEl.innerHTML = '';
+        for (const word of unfound) {
+            const chip = document.createElement('span');
+            chip.className = 'word-chip';
+            chip.textContent = word;
+            revealedEl.appendChild(chip);
+        }
+        revealedEl.classList.add('visible');
+        this.haptic('light');
+
+        if (this.revealWordsTimeout) clearTimeout(this.revealWordsTimeout);
+        this.revealWordsTimeout = setTimeout(() => {
+            revealedEl.classList.remove('visible');
+            this.revealWordsTimeout = null;
+        }, 2500);
     },
 
     renderTopics() {
