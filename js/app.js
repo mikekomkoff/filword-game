@@ -15,6 +15,7 @@ const App = {
     cellSize: 48,
     gridGap: 3,
     isLevelComplete: false,
+    isDailyMode: false,
     hintTimeout: null,
     revealWordsTimeout: null,
     wordsRevealLeft: 0,
@@ -125,8 +126,16 @@ const App = {
         });
 
         document.getElementById('start-btn').addEventListener('click', () => {
+            this.isDailyMode = false;
             this.startGame();
         });
+
+        document.getElementById('daily-btn').addEventListener('click', () => {
+            this.isDailyMode = true;
+            this.startGame();
+        });
+
+        this.updateDailyStatus();
     },
 
     bindGameScreen() {
@@ -195,6 +204,7 @@ const App = {
 
     bindWinScreen() {
         document.getElementById('next-level-btn').addEventListener('click', () => {
+            if (this.isDailyMode) { this.exitGame(); return; }
             const levels = ['easy', 'normal', 'medium', 'hard'];
             const idx = levels.indexOf(this.difficulty);
             if (idx < levels.length - 1) {
@@ -207,6 +217,7 @@ const App = {
         });
 
         document.getElementById('new-game-win-btn').addEventListener('click', () => {
+            if (this.isDailyMode) { this.exitGame(); return; }
             this.startGame();
         });
 
@@ -227,7 +238,38 @@ const App = {
         if (this.game) this.game.destroy();
         this.game = null;
         this.isLevelComplete = false;
+        this.isDailyMode = false;
         this.showScreen('start-screen');
+    },
+
+    getTodayStr() {
+        const d = new Date();
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    },
+
+    updateDailyStatus() {
+        const btn = document.getElementById('daily-btn');
+        const status = document.getElementById('daily-status');
+        if (!btn || !status) return;
+        const completed = localStorage.getItem('daily_completed');
+        const savedDate = localStorage.getItem('daily_date');
+        const today = this.getTodayStr();
+        if (completed === '1' && savedDate === today) {
+            btn.disabled = true;
+            status.textContent = 'Пройдено! Возвращайтесь завтра';
+        } else {
+            btn.disabled = false;
+            status.textContent = '';
+        }
+    },
+
+    markDailyCompleted() {
+        localStorage.setItem('daily_completed', '1');
+        localStorage.setItem('daily_date', this.getTodayStr());
+        this.updateDailyStatus();
     },
 
     startGame() {
@@ -240,16 +282,28 @@ const App = {
             this.revealWordsTimeout = null;
         }
 
-        const config = WORDS_BY_DIFFICULTY[this.difficulty];
-        let sets = config.sets;
-        if (this.selectedTopics.size > 0) {
-            sets = sets.filter(s => this.selectedTopics.has(s.topic));
+        const isDaily = this.isDailyMode;
+        const diff = isDaily ? 'normal' : this.difficulty;
+        const config = WORDS_BY_DIFFICULTY[diff];
+
+        let chosen;
+        if (isDaily) {
+            const today = this.getTodayStr();
+            let seed = 0;
+            for (let i = 0; i < today.length; i++) seed = ((seed << 5) - seed) + today.charCodeAt(i);
+            const idx = ((seed % config.sets.length) + config.sets.length) % config.sets.length;
+            chosen = config.sets[idx];
+        } else {
+            let sets = config.sets;
+            if (this.selectedTopics.size > 0) {
+                sets = sets.filter(s => this.selectedTopics.has(s.topic));
+            }
+            if (sets.length === 0) {
+                alert('Нет наборов по выбранным темам. Выберите другие темы или нажмите «Все темы».');
+                return;
+            }
+            chosen = sets[Math.floor(Math.random() * sets.length)];
         }
-        if (sets.length === 0) {
-            alert('Нет наборов по выбранным темам. Выберите другие темы или нажмите «Все темы».');
-            return;
-        }
-        const chosen = sets[Math.floor(Math.random() * sets.length)];
         const wordSet = chosen.words;
         const topic = chosen.topic;
 
@@ -266,11 +320,17 @@ const App = {
         this.calculateCellSize();
 
         const topicEl = document.getElementById('topic-label');
-        topicEl.textContent = topic;
+        if (isDaily) {
+            topicEl.textContent = 'Филворд дня';
+            topicEl.className = 'topic-label daily';
+        } else {
+            topicEl.textContent = 'Тематика: ' + topic;
+            topicEl.className = 'topic-label';
+        }
         topicEl.style.display = '';
 
         const revealBtn = document.getElementById('reveal-words-btn');
-        const isRevealLevel = this.difficulty === 'medium' || this.difficulty === 'hard';
+        const isRevealLevel = isDaily || diff === 'medium' || diff === 'hard';
         revealBtn.style.display = isRevealLevel ? '' : 'none';
         this.wordsRevealLeft = isRevealLevel ? 3 : 0;
         this.updateWordsRevealCount();
@@ -295,6 +355,7 @@ const App = {
             this.isLevelComplete = true;
             this.haptic('success');
             this.playComplete();
+            if (this.isDailyMode) this.markDailyCompleted();
             document.getElementById('final-time').textContent = this.game.formatTime(time);
             setTimeout(() => this.showScreen('win-screen'), 500);
         });
