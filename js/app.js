@@ -47,6 +47,7 @@ const App = {
                 if (this.tg.disableVerticalSwipes) this.tg.disableVerticalSwipes();
             } catch (e) {}
             this.tg.onEvent('fullscreenChanged', () => {
+                this.updateSafeAreas();
                 this.updateFullscreenIcon();
             });
         }
@@ -152,8 +153,14 @@ const App = {
         Object.entries(map).forEach(([key, val]) => {
             if (val) document.documentElement.style.setProperty(key, val);
         });
-        const inset = Telegram.WebApp.safeAreaInset;
+        this.updateSafeAreas();
+    },
+
+    updateSafeAreas() {
+        if (!this.tg) return;
+        const inset = this.tg.safeAreaInset;
         if (inset) {
+            document.documentElement.style.setProperty('--safe-top', inset.top + 'px');
             document.documentElement.style.setProperty('--safe-bottom', inset.bottom + 'px');
         }
     },
