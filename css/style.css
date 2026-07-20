@@ -246,6 +246,16 @@ h1 {
 }
 
 /* ─── WORD LIST ─── */
+.topic-label {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--tg-theme-hint-color);
+    padding: 4px 16px 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
 .word-list {
     display: flex;
     flex-wrap: wrap;
@@ -267,6 +277,32 @@ h1 {
 
 .word-chip.found {
     text-decoration: line-through;
+    opacity: 0.85;
+}
+
+.revealed-words {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 0 16px 4px;
+    justify-content: center;
+    min-height: 0;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
+}
+
+.revealed-words.visible {
+    max-height: 120px;
+    opacity: 1;
+    padding: 6px 16px;
+}
+
+.revealed-words .word-chip {
+    font-size: 13px;
+    background: var(--tg-theme-hint-color);
+    color: var(--tg-theme-bg-color);
     opacity: 0.85;
 }
 
