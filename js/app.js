@@ -344,7 +344,12 @@ const App = {
         } else if (this.selectedGeneration) {
             const gen = GENERATIONS.find(g => g.id === this.selectedGeneration);
             if (!gen) { alert('Поколение не найдено'); return; }
-            const set = gen.sets[Math.floor(Math.random() * gen.sets.length)];
+            const maxLen = config.size;
+            const set = gen.sets[Math.floor(Math.random() * gen.sets.length)].filter(w => w.length <= maxLen);
+            if (set.length < 3) {
+                alert('Слишком длинные слова. Выберите более сложный уровень.');
+                return;
+            }
             chosen = { words: set, topic: gen.label };
         } else {
             let sets = config.sets;
