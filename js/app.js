@@ -164,7 +164,7 @@ const App = {
         const inset = this.tg.safeAreaInset;
         const top = inset ? inset.top : 0;
         const bottom = inset ? inset.bottom : 0;
-        const minTop = this.tg.isFullscreen ? 50 : 0;
+        const minTop = this.tg.isFullscreen ? 64 : 0;
         document.documentElement.style.setProperty('--safe-top', Math.max(top, minTop) + 'px');
         document.documentElement.style.setProperty('--safe-bottom', bottom + 'px');
     },
