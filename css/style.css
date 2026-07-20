@@ -271,6 +271,19 @@ h1 {
     min-height: 52px;
 }
 
+.header-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
 .icon-btn {
     width: 40px;
     height: 40px;
@@ -283,6 +296,12 @@ h1 {
     align-items: center;
     justify-content: center;
     transition: opacity 0.2s;
+    flex-shrink: 0;
+}
+
+.icon-btn-sm {
+    width: 34px;
+    height: 34px;
 }
 
 .icon-btn:active {
