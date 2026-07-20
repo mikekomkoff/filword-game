@@ -162,10 +162,11 @@ const App = {
     updateSafeAreas() {
         if (!this.tg) return;
         const inset = this.tg.safeAreaInset;
-        if (inset) {
-            document.documentElement.style.setProperty('--safe-top', inset.top + 'px');
-            document.documentElement.style.setProperty('--safe-bottom', inset.bottom + 'px');
-        }
+        const top = inset ? inset.top : 0;
+        const bottom = inset ? inset.bottom : 0;
+        const minTop = this.tg.isFullscreen ? 50 : 0;
+        document.documentElement.style.setProperty('--safe-top', Math.max(top, minTop) + 'px');
+        document.documentElement.style.setProperty('--safe-bottom', bottom + 'px');
     },
 
     bindStartScreen() {
