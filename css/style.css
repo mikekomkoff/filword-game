@@ -176,6 +176,82 @@ h1 {
     transform: scale(0.95);
 }
 
+/* ─── GENERATION SECTION ─── */
+.generation-section {
+    width: 100%;
+    border: none;
+    outline: none;
+}
+
+.generation-section[open] .gen-summary {
+    margin-bottom: 8px;
+}
+
+.gen-summary {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--tg-theme-hint-color);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    padding: 4px 0;
+    list-style: none;
+}
+
+.gen-summary::-webkit-details-marker {
+    display: none;
+}
+
+.gen-summary::before {
+    content: '+ ';
+    font-size: 15px;
+}
+
+.generation-section[open] .gen-summary::before {
+    content: '– ';
+}
+
+.gen-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.gen-chip {
+    padding: 6px 12px;
+    border: 1.5px solid var(--tg-theme-secondary-bg-color);
+    border-radius: 20px;
+    background: var(--tg-theme-section-bg-color);
+    color: var(--tg-theme-text-color);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+
+.gen-chip.active {
+    border-color: var(--tg-theme-button-color);
+    background: var(--tg-theme-button-color);
+    color: var(--tg-theme-button-text-color);
+}
+
+.gen-chip:active {
+    transform: scale(0.95);
+}
+
+.gen-chip .gen-years {
+    opacity: 0.6;
+    font-weight: 400;
+}
+
+.gen-selected {
+    font-size: 12px;
+    color: var(--tg-theme-button-color);
+    padding: 2px 0;
+}
+
+/* ─── PRIMARY BUTTON ─── */
 .primary-btn {
     width: 100%;
     padding: 16px 24px;
