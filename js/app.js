@@ -49,6 +49,7 @@ const App = {
             this.tg.onEvent('fullscreenChanged', () => {
                 this.updateSafeAreas();
                 this.updateFullscreenIcon();
+                if (this.game) setTimeout(() => this.calculateCellSize(), 150);
             });
         }
     },
@@ -66,6 +67,7 @@ const App = {
         try {
             if (this.tg.requestFullscreen) this.tg.requestFullscreen();
         } catch (e) {}
+        setTimeout(() => this.updateSafeAreas(), 100);
     },
 
     exitFullscreen() {
@@ -73,6 +75,7 @@ const App = {
         try {
             if (this.tg.exitFullscreen) this.tg.exitFullscreen();
         } catch (e) {}
+        setTimeout(() => this.updateSafeAreas(), 100);
     },
 
     toggleFullscreen() {
