@@ -345,12 +345,14 @@ const App = {
             const gen = GENERATIONS.find(g => g.id === this.selectedGeneration);
             if (!gen) { alert('Поколение не найдено'); return; }
             const maxLen = config.size;
-            const set = gen.sets[Math.floor(Math.random() * gen.sets.length)].filter(w => w.length <= maxLen);
-            if (set.length < 3) {
+            const pool = [...new Set(gen.sets.flat().filter(w => w.length <= maxLen))];
+            if (pool.length < 3) {
                 alert('Слишком длинные слова. Выберите более сложный уровень.');
                 return;
             }
-            chosen = { words: set, topic: gen.label };
+            const shuffled = pool.sort(() => Math.random() - 0.5);
+            const count = config.sets[0].words.length || 5;
+            chosen = { words: shuffled.slice(0, count), topic: gen.label };
         } else {
             let sets = config.sets;
             if (this.selectedTopics.size > 0) {
