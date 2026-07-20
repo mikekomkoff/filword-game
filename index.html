@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Филворды</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="css/style.css?v=8">
+    <link rel="stylesheet" href="css/style.css?v=9">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
@@ -51,7 +51,11 @@
                 <div class="hints-count" id="hints-count">0</div>
             </div>
 
+            <div class="topic-label" id="topic-label"></div>
+
             <div class="word-list" id="word-list"></div>
+
+            <div class="revealed-words" id="revealed-words"></div>
 
             <div class="progress-bar">
                 <div class="progress-fill" id="progress-fill"></div>
@@ -72,6 +76,13 @@
                         <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                     </svg>
                     Подсказка
+                </button>
+                <button class="ghost-btn" id="reveal-words-btn" style="display:none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2"/>
+                    </svg>
+                    Слова <span id="reveal-count"></span>
                 </button>
                 <button class="ghost-btn" id="new-game-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -100,8 +111,8 @@
         </div>
     </div>
 
-    <script src="js/words.js?v=7"></script>
-    <script src="js/game.js?v=7"></script>
-    <script src="js/app.js?v=7"></script>
+    <script src="js/words.js?v=9"></script>
+    <script src="js/game.js?v=9"></script>
+    <script src="js/app.js?v=9"></script>
 </body>
 </html>
