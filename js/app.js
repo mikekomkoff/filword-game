@@ -41,6 +41,12 @@ const App = {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
             this.tg = Telegram.WebApp;
+            try {
+                if (this.tg.disableVerticalSwipes) this.tg.disableVerticalSwipes();
+            } catch (e) {}
+            this.tg.onEvent('fullscreenChanged', () => {
+                this.updateFullscreenIcon();
+            });
         }
     },
 
@@ -49,6 +55,41 @@ const App = {
             if (type === 'success') this.tg.HapticFeedback.notificationOccurred('success');
             else if (type === 'error') this.tg.HapticFeedback.notificationOccurred('error');
             else this.tg.HapticFeedback.impactOccurred('light');
+        }
+    },
+
+    requestFullscreen() {
+        if (!this.tg) return;
+        try {
+            if (this.tg.requestFullscreen) this.tg.requestFullscreen();
+        } catch (e) {}
+    },
+
+    exitFullscreen() {
+        if (!this.tg) return;
+        try {
+            if (this.tg.exitFullscreen) this.tg.exitFullscreen();
+        } catch (e) {}
+    },
+
+    toggleFullscreen() {
+        if (!this.tg) return;
+        try {
+            if (this.tg.isFullscreen) {
+                this.exitFullscreen();
+            } else {
+                this.requestFullscreen();
+            }
+        } catch (e) {}
+    },
+
+    updateFullscreenIcon() {
+        const icon = document.getElementById('fs-icon');
+        if (!icon || !this.tg) return;
+        if (this.tg.isFullscreen) {
+            icon.innerHTML = '<path d="M8 3v3a2 2 0 0 1-2 2H3m0 0h18M3 8v11a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
+        } else {
+            icon.innerHTML = '<path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>';
         }
     },
 
@@ -162,6 +203,10 @@ const App = {
             this.revealWords();
         });
 
+        document.getElementById('fullscreen-btn').addEventListener('click', () => {
+            this.toggleFullscreen();
+        });
+
         this._onPointerMove = (e) => {
             if (!this.game || !this.game.isSelecting || this.isLevelComplete) return;
             const el = document.elementFromPoint(e.clientX, e.clientY);
@@ -239,6 +284,7 @@ const App = {
         this.game = null;
         this.isLevelComplete = false;
         this.isDailyMode = false;
+        this.exitFullscreen();
         this.showScreen('start-screen');
     },
 
@@ -364,6 +410,7 @@ const App = {
         this.renderWordList();
         this.updateHintsCount();
         this.updateProgress();
+        this.requestFullscreen();
         this.showScreen('game-screen');
         this.game.startTimer();
     },
