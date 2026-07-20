@@ -336,7 +336,6 @@ h1 {
 /* ─── GAME SCREEN ─── */
 #game-screen {
     padding: 0;
-    padding-top: var(--safe-top);
     padding-bottom: calc(0px + var(--safe-bottom));
 }
 
