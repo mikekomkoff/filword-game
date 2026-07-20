@@ -194,6 +194,68 @@ h1 {
     transform: scale(0.98);
 }
 
+/* ─── DAILY SECTION ─── */
+.daily-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.daily-divider {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--tg-theme-hint-color);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.daily-divider::before,
+.daily-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--tg-theme-secondary-bg-color);
+}
+
+.daily-btn {
+    width: 100%;
+    padding: 14px 24px;
+    border: 2px solid var(--tg-theme-button-color);
+    border-radius: var(--border-radius);
+    background: transparent;
+    color: var(--tg-theme-button-color);
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+}
+
+.daily-btn:active {
+    opacity: 0.7;
+    transform: scale(0.98);
+}
+
+.daily-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+    transform: none;
+}
+
+.daily-status {
+    font-size: 12px;
+    color: var(--tg-theme-hint-color);
+    min-height: 16px;
+}
+
 /* ─── GAME SCREEN ─── */
 #game-screen {
     padding: 0;
@@ -254,6 +316,15 @@ h1 {
     padding: 4px 16px 0;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+}
+
+.topic-label.daily {
+    color: var(--tg-theme-button-color);
+    font-size: 13px;
+}
+
+.topic-label.daily::before {
+    content: '\2605 ';
 }
 
 .word-list {
