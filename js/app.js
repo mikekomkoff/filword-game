@@ -1,5 +1,5 @@
 const SHARE_BOT_LINK = 'https://mikekomkoff.github.io/filword-game/';
-const SHARE_BOT_LINK_TG = SHARE_BOT_LINK; // замени на t.me/YourBotName
+const SHARE_BOT_LINK_TG = 'https://t.me/filwordgame_bot';
 
 const WORD_COLORS = [
     '#E74C3C',
