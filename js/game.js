@@ -1,6 +1,12 @@
 const PRIMARY_DIRS = [[0, 1], [1, 0]];
 const CARD_DIRS = [[0, 1], [1, 0], [0, -1], [-1, 0]];
 const LETTERS = 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя';
+const FILLER_WORDS = [
+    'вода', 'огонь', 'утро', 'вечер', 'море', 'поле', 'река', 'гора', 'луна', 'небо',
+    'зима', 'лето', 'осень', 'весна', 'день', 'ночь', 'мир', 'дом', 'лес', 'сад',
+    'рот', 'нос', 'ухо', 'лук', 'сыр', 'мак', 'рис', 'сон', 'кот', 'пёс',
+    'бык', 'рак', 'дуб', 'ель', 'ум', 'год', 'час', 'путь', 'край', 'вид',
+];
 
 function dirKey(dr, dc) {
     if (dr < 0 || (dr === 0 && dc < 0)) { dr = -dr; dc = -dc; }
@@ -26,7 +32,8 @@ class FilwordGame {
     }
 
     generate() {
-        for (let attempt = 0; attempt < 4000; attempt++) {
+        const maxAttempts = 4000 + this.targetWords.length * 500;
+        for (let attempt = 0; attempt < maxAttempts; attempt++) {
             const grid = Array.from({ length: this.size }, () => Array(this.size).fill(null));
             const placed = [];
             const words = [...this.targetWords].sort((a, b) => b.length - a.length);
@@ -45,13 +52,7 @@ class FilwordGame {
             }
 
             if (ok) {
-                for (let r = 0; r < this.size; r++) {
-                    for (let c = 0; c < this.size; c++) {
-                        if (grid[r][c] === null) {
-                            grid[r][c] = LETTERS[Math.floor(Math.random() * LETTERS.length)];
-                        }
-                    }
-                }
+                this.fillEmptyCells(grid);
                 this.grid = grid;
                 this.placedWords = placed;
 
@@ -87,7 +88,7 @@ class FilwordGame {
                     for (let i = 0; i < word.length; i++) {
                         const nr = r + dr * i, nc = c + dc * i;
                         if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { fit = false; break; }
-                        if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { fit = false; break; }
+                        if (grid[nr][nc] !== null) { fit = false; break; }
                     }
                     if (fit) {
                         const cells = [];
@@ -113,14 +114,14 @@ class FilwordGame {
                             for (let i = 0; i < split; i++) {
                                 const nr = r + dr1 * i, nc = c + dc1 * i;
                                 if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
-                                if (grid[nr][nc] !== null && grid[nr][nc] !== word[i]) { ok = false; break; }
+                                if (grid[nr][nc] !== null) { ok = false; break; }
                             }
                             if (!ok) continue;
                             const tr = r + dr1 * (split - 1), tc = c + dc1 * (split - 1);
                             for (let i = 1; i <= word.length - split; i++) {
                                 const nr = tr + dr2 * i, nc = tc + dc2 * i;
                                 if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { ok = false; break; }
-                                if (grid[nr][nc] !== null && grid[nr][nc] !== word[split - 1 + i]) { ok = false; break; }
+                                if (grid[nr][nc] !== null) { ok = false; break; }
                             }
                             if (!ok) continue;
 
@@ -144,6 +145,47 @@ class FilwordGame {
         const chosenDir = bestDirs[Math.floor(Math.random() * bestDirs.length)];
         const pool = placementsByDir[chosenDir];
         return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    fillEmptyCells(grid) {
+        const filler = [...FILLER_WORDS].sort((a, b) => b.length - a.length);
+
+        for (const word of filler) {
+            const placements = [];
+
+            for (const [dr, dc] of PRIMARY_DIRS) {
+                for (let r = 0; r < this.size; r++) {
+                    for (let c = 0; c < this.size; c++) {
+                        let fit = true;
+                        for (let i = 0; i < word.length; i++) {
+                            const nr = r + dr * i, nc = c + dc * i;
+                            if (nr < 0 || nr >= this.size || nc < 0 || nc >= this.size) { fit = false; break; }
+                            if (grid[nr][nc] !== null) { fit = false; break; }
+                        }
+                        if (fit) {
+                            const cells = [];
+                            for (let i = 0; i < word.length; i++) cells.push({ row: r + dr * i, col: c + dc * i });
+                            placements.push(cells);
+                        }
+                    }
+                }
+            }
+
+            if (placements.length > 0) {
+                const cells = placements[Math.floor(Math.random() * placements.length)];
+                for (let i = 0; i < word.length; i++) {
+                    grid[cells[i].row][cells[i].col] = word[i];
+                }
+            }
+        }
+
+        for (let r = 0; r < this.size; r++) {
+            for (let c = 0; c < this.size; c++) {
+                if (grid[r][c] === null) {
+                    grid[r][c] = LETTERS[Math.floor(Math.random() * LETTERS.length)];
+                }
+            }
+        }
     }
 
     on(event, fn) {
