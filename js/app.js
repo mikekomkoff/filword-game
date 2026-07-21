@@ -1,3 +1,6 @@
+const SHARE_BOT_LINK = 'https://mikekomkoff.github.io/filword-game/';
+const SHARE_BOT_LINK_TG = SHARE_BOT_LINK; // замени на t.me/YourBotName
+
 const WORD_COLORS = [
     '#E74C3C',
     '#2ECC71',
@@ -282,6 +285,30 @@ const App = {
         document.getElementById('menu-btn').addEventListener('click', () => {
             this.exitGame();
         });
+
+        document.getElementById('share-btn').addEventListener('click', () => {
+            this.shareResult();
+        });
+    },
+
+    shareResult() {
+        const time = document.getElementById('final-time').textContent;
+        const diff = this.isDailyMode ? 'Филворд дня' : this.difficultyLabel();
+        const text = encodeURIComponent(`Я прошёл ${diff} за ${time} в Филвордах! Сыграй и ты ➜`);
+        const url = encodeURIComponent(SHARE_BOT_LINK_TG);
+        const shareUrl = `https://t.me/share/url?url=${url}&text=${text}`;
+
+        if (navigator.share) {
+            navigator.share({ title: 'Филворды', text: decodeURIComponent(text), url: SHARE_BOT_LINK_TG })
+                .catch(() => window.open(shareUrl, '_blank'));
+        } else {
+            window.open(shareUrl, '_blank');
+        }
+    },
+
+    difficultyLabel() {
+        const labels = { easy: 'Легко', normal: 'Нормально', medium: 'Средне', hard: 'Сложно' };
+        return labels[this.difficulty] || this.difficulty;
     },
 
     exitGame() {
