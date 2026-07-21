@@ -640,6 +640,24 @@ h1 {
     max-width: 280px;
 }
 
+.next-level-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.next-level-wrap .ghost-btn {
+    flex: unset;
+    width: 100%;
+}
+
+.next-level-hint {
+    font-size: 11px;
+    color: var(--tg-theme-hint-color);
+    opacity: 0.7;
+}
+
 /* ─── SELECTION LINE ─── */
 .selection-line {
     position: absolute;
