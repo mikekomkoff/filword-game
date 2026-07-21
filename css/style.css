@@ -333,6 +333,21 @@ h1 {
     min-height: 16px;
 }
 
+.about-link {
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    color: var(--tg-theme-hint-color);
+    text-decoration: none;
+    padding: 8px 0 4px;
+    opacity: 0.6;
+    transition: opacity 0.2s;
+}
+
+.about-link:hover {
+    opacity: 1;
+}
+
 /* ─── GAME SCREEN ─── */
 #game-screen {
     padding: 0;
