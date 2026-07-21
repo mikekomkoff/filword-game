@@ -36,13 +36,6 @@
                     <div class="topic-list" id="topic-list"></div>
                 </div>
 
-                <details class="generation-section" id="gen-section">
-                    <summary class="gen-summary">Поколение <span class="topic-hint">(эксперимент)</span></summary>
-                    <div class="gen-list" id="gen-list"></div>
-                </details>
-
-                <button class="primary-btn" id="start-btn">Начать игру</button>
-
                 <div class="daily-section">
                     <div class="daily-divider"><span>или</span></div>
                     <button class="daily-btn" id="daily-btn">
@@ -131,8 +124,11 @@
                 </div>
                 <h2>Уровень пройден!</h2>
                 <p class="win-time">Время: <span id="final-time">00:00</span></p>
-                <button class="primary-btn" id="next-level-btn">Следующий уровень</button>
-                <button class="ghost-btn" id="new-game-win-btn">Новая игра</button>
+                <button class="primary-btn" id="new-game-win-btn">Новая игра</button>
+                <div class="next-level-wrap">
+                    <button class="ghost-btn" id="next-level-btn">Следующий уровень</button>
+                    <span class="next-level-hint">По сложности</span>
+                </div>
                 <button class="ghost-btn" id="share-btn">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path d="M4 12V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -140,7 +136,7 @@
                     </svg>
                     Поделиться
                 </button>
-                <button class="ghost-btn" id="menu-btn">В меню</button>
+                <button class="ghost-btn" id="menu-btn">На главную</button>
             </div>
         </div>
     </div>
