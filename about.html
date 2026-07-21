@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Филворды – что это такое, правила игры и примеры</title>
+    <meta name="description" content="Филворды (венгерский кроссворд) – головоломка, где нужно находить слова на поле из букв. Правила, примеры, советы для начинающих. Играйте бесплатно онлайн.">
+    <meta name="keywords" content="филворды, что такое филворды, правила филвордов, венгерский кроссворд, филворды онлайн, найти слова на поле, игра слов">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Filword Game">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="Филворды – что это такое, правила игры и примеры">
+    <meta property="og:description" content="Филворды (венгерский кроссворд) – головоломка, где нужно находить слова на поле из букв. Правила, примеры, советы для начинающих.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://mikekomkoff.github.io/filword-game/about.html">
+    <meta property="og:image" content="https://mikekomkoff.github.io/filword-game/og-image.png">
+    <meta property="og:locale" content="ru_RU">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Филворды – что это такое, правила игры и примеры">
+    <meta name="twitter:description" content="Филворды (венгерский кроссворд) – головоломка, где нужно находить слова на поле из букв. Правила, примеры, советы для начинающих.">
+    <meta name="twitter:image" content="https://mikekomkoff.github.io/filword-game/og-image.png">
+
+    <style>
+        :root {
+            --bg: #f5f5f7;
+            --card: #ffffff;
+            --text: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --accent: #40a7e3;
+            --accent-hover: #3598d1;
+            --border: #e0e0e0;
+            --radius: 16px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            max-width: 720px;
+            margin: 0 auto;
+            padding: 24px 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            padding: 40px 0 24px;
+        }
+
+        .logo {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 16px;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        /* Cards */
+        section { margin-bottom: 32px; }
+
+        .card {
+            background: var(--card);
+            border-radius: var(--radius);
+            padding: 28px;
+            margin-bottom: 16px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+        }
+
+        h2 {
+            font-size: 22px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            letter-spacing: -0.01em;
+        }
+
+        h3 {
+            font-size: 17px;
+            font-weight: 600;
+            margin: 20px 0 8px;
+            color: var(--text);
+        }
+
+        p { margin-bottom: 12px; color: var(--text-secondary); }
+        p:last-child { margin-bottom: 0; }
+        a { color: var(--accent); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+
+        ul, ol {
+            margin: 0 0 12px 20px;
+            color: var(--text-secondary);
+        }
+        li { margin-bottom: 6px; }
+
+        /* Example grid */
+        .example-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .example-grid {
+            display: inline-grid;
+            grid-template-columns: repeat(6, 40px);
+            gap: 3px;
+            background: var(--bg);
+            padding: 8px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+        }
+
+        .example-grid .cell {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--card);
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+
+        .example-grid .cell.highlight {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .example-grid .cell.highlight2 {
+            background: #34c759;
+            color: #fff;
+        }
+
+        .example-words {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .example-words .tag {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .example-words .tag.blue { background: #e8f4fd; color: var(--accent); }
+        .example-words .tag.green { background: #e8f8ee; color: #34c759; }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            padding: 16px 0 32px;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 17px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-decoration: none;
+        }
+
+        .cta-btn:hover {
+            background: var(--accent-hover);
+            text-decoration: none;
+        }
+
+        /* FAQ */
+        .faq-item {
+            border-bottom: 1px solid var(--border);
+            padding: 16px 0;
+        }
+
+        .faq-item:last-child { border-bottom: none; }
+
+        .faq-q {
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text);
+        }
+
+        .faq-a { color: var(--text-secondary); }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 24px 0 40px;
+            font-size: 14px;
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a { color: var(--text-secondary); }
+
+        /* Breadcrumbs */
+        .breadcrumbs {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .breadcrumbs a { color: var(--text-secondary); }
+
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 32px 0;
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 16px; }
+            h1 { font-size: 26px; }
+            .card { padding: 20px; }
+            .example-grid { grid-template-columns: repeat(6, 34px); }
+            .example-grid .cell { width: 34px; height: 34px; font-size: 14px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <nav class="breadcrumbs">
+            <a href="/filword-game/">Филворды</a> / О проекте
+        </nav>
+
+        <header>
+            <div class="logo">Ф</div>
+            <h1>Что такое филворды?</h1>
+            <p class="subtitle">Венгерский кроссворд – найди все слова на поле</p>
+        </header>
+
+        <!-- What is -->
+        <section>
+            <div class="card">
+                <h2>Определение</h2>
+                <p><strong>Филворды</strong> (от англ. <em>fillword</em> – «заполни слово») – разновидность кроссворда, в которой все слова уже расставлены на игровом поле, и игроку нужно их найти, выделяя буквы по порядку. В отличие от классического кроссворда, в филвордах нет пустых клеток и перекрёстных подсказок – слова могут изгибаться под прямым углом (L-образно), но не пересекаются друг с другом.</p>
+                <p>Филворды также известны как <strong>венгерский кроссворд</strong> (по одной из версий, изобретён в Венгрии) или «слова среди букв».</p>
+            </div>
+        </section>
+
+        <!-- Rules -->
+        <section>
+            <div class="card">
+                <h2>Правила игры</h2>
+                <ol>
+                    <li><strong>Поле</strong> – квадратная сетка, заполненная буквами. Каждая буква принадлежит ровно одному слову.</li>
+                    <li><strong>Список слов</strong> – в начале игры показаны слова, которые нужно найти. Они сгруппированы по тематике (например: «Космос», «Еда», «Технологии»).</li>
+                    <li><strong>Поиск слов</strong> – проводите пальцем или мышкой по буквам в правильном порядке. Слова располагаются:
+                        <ul>
+                            <li>сверху вниз</li>
+                            <li>слева направо</li>
+                            <li>L-образно (один поворот под прямым углом)</li>
+                        </ul>
+                    </li>
+                    <li><strong>Подтверждение</strong> – когда слово найдено верно, его буквы подсвечиваются цветом, а слово в списке зачёркивается.</li>
+                    <li><strong>Завершение</strong> – игра заканчивается, когда найдены все слова из списка. Время прохождения фиксируется.</li>
+                    <li><strong>Подсказки</strong> – если слово никак не находится, можно использовать подсказку: она подсветит буквы нужного слова на две секунды.</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- Example -->
+        <section>
+            <div class="card">
+                <h2>Пример</h2>
+                <p>Поле 6×6, нужно найти слова: <strong>МОРЕ, ПОЛЕ, РЕКА, ЛЕС, ГОРА</strong>.</p>
+
+                <div class="example-title">Шаг 1. Ищем слово «МОРЕ»</div>
+                <div class="example-grid">
+                    <div class="cell">А</div>
+                    <div class="cell">Б</div>
+                    <div class="cell highlight">М</div>
+                    <div class="cell">Т</div>
+                    <div class="cell">К</div>
+                    <div class="cell">Я</div>
+                    <div class="cell">Л</div>
+                    <div class="cell">Е</div>
+                    <div class="cell highlight">О</div>
+                    <div class="cell">П</div>
+                    <div class="cell">С</div>
+                    <div class="cell">У</div>
+                    <div class="cell">Д</div>
+                    <div class="cell">Ж</div>
+                    <div class="cell highlight">Р</div>
+                    <div class="cell">И</div>
+                    <div class="cell">Ф</div>
+                    <div class="cell">Ы</div>
+                    <div class="cell">Ч</div>
+                    <div class="cell">Ш</div>
+                    <div class="cell highlight">Е</div>
+                    <div class="cell">В</div>
+                    <div class="cell">Ц</div>
+                    <div class="cell">Х</div>
+                    <div class="cell">Н</div>
+                    <div class="cell">Э</div>
+                    <div class="cell">З</div>
+                    <div class="cell">Ъ</div>
+                    <div class="cell">Ь</div>
+                    <div class="cell">Й</div>
+                    <div class="cell">Ю</div>
+                    <div class="cell">Г</div>
+                    <div class="cell">Н</div>
+                    <div class="cell">Д</div>
+                    <div class="cell">А</div>
+                    <div class="cell">Т</div>
+                </div>
+
+                <p>Буквы М → О → Р → Е образуют слово «МОРЕ» (направление – сверху вниз). После нахождения слово подсвечивается, а клетки фиксируются.</p>
+
+                <div class="example-title">Шаг 2. Найденные слова</div>
+                <div class="example-words">
+                    <span class="tag blue">МОРЕ</span>
+                    <span class="tag green">ПОЛЕ</span>
+                    <span class="tag green">РЕКА</span>
+                    <span class="tag blue">ЛЕС</span>
+                    <span class="tag green">ГОРА</span>
+                </div>
+
+                <p>Когда все слова найдены – уровень пройден!</p>
+            </div>
+        </section>
+
+        <!-- Difficulty levels -->
+        <section>
+            <div class="card">
+                <h2>Уровни сложности</h2>
+                <p>Игра предлагает четыре уровня сложности, чтобы было интересно и новичкам, и опытным игрокам:</p>
+                <ul>
+                    <li><strong>Легко</strong> – поле 5×5, 5 коротких слов (2–5 букв). Подходит для знакомства с игрой.</li>
+                    <li><strong>Нормально</strong> – поле 6×6, 5 слов средней длины (3–6 букв). Базовый уровень.</li>
+                    <li><strong>Средне</strong> – поле 9×9, 12 слов (4–9 букв). Требует внимательности.</li>
+                    <li><strong>Сложно</strong> – поле 10×10, 12 слов (5–10 букв). Для настоящих мастеров поиска.</li>
+                </ul>
+                <p>Также доступен ежедневный режим – <strong>Филворд дня</strong>:
+                уникальное задание, которое обновляется каждый день и одинаково для всех игроков.</p>
+            </div>
+        </section>
+
+        <!-- Why play -->
+        <section>
+            <div class="card">
+                <h2>Почему филворды полезны?</h2>
+                <ul>
+                    <li><strong>Словарный запас</strong> – регулярное разгадывание расширяет активный словарь, особенно при игре на разные темы.</li>
+                    <li><strong>Внимание</strong> – поиск слов на зашумлённом поле тренирует концентрацию и зрительное восприятие.</li>
+                    <li><strong>Память</strong> – удержание в голове нескольких слов одновременно развивает оперативную память.</li>
+                    <li><strong>Релаксация</strong> – филворды не требуют спешки, их можно проходить в своём темпе.</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- FAQ -->
+        <section>
+            <div class="card">
+                <h2>Часто задаваемые вопросы</h2>
+
+                <div class="faq-item">
+                    <div class="faq-q">Можно ли проводить пальцем по диагонали?</div>
+                    <div class="faq-a">Нет, только по вертикали и горизонтали. Диагональные ходы не засчитываются. Допускается один поворот под прямым углом (L-образно).</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Что значит L-образное слово?</div>
+                    <div class="faq-a">Слово, которое начинается в одном направлении (например, вниз), а потом поворачивает под прямым углом (например, вправо). В филвордах допускается ровно один такой поворот на слово.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Сколько подсказок можно использовать?</div>
+                    <div class="faq-a">Три подсказки на один уровень. Каждая подсвечивает буквы одного ненайденного слова на 1,5 секунды. На уровнях «Средне» и «Сложно» также есть кнопка «Слова» – она показывает сразу все ненайденные слова (три использования за игру).</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">На каких устройствах можно играть?</div>
+                    <div class="faq-a">В браузере на телефоне, планшете и компьютере. В Telegram игра открывается в режиме Mini App с полной поддержкой жестов и тактильной отдачи.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Филворды и венгерский кроссворд – это одно и то же?</div>
+                    <div class="faq-a">Да, это разные названия одной головоломки. Разница только в том, что в классическом венгерском кроссворде слова могут располагаться в любом из восьми направлений (включая диагонали), а в нашей версии – только по вертикали, горизонтали и L-образно.</div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-q">Как поделиться результатом?</div>
+                    <div class="faq-a">После прохождения уровня нажмите «Поделиться» – открывается Telegram-чат с сообщением о вашем времени и уровне сложности, чтобы пригласить друзей.</div>
+                </div>
+            </div>
+        </section>
+
+        <div class="divider"></div>
+
+        <div class="cta">
+            <a href="https://mikekomkoff.github.io/filword-game/" class="cta-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Играть в филворды
+            </a>
+        </div>
+
+        <footer>
+            <p><a href="https://mikekomkoff.github.io/filword-game/">Filword Game</a> – бесплатная онлайн-игра. Работает как Telegram Mini App.</p>
+        </footer>
+    </div>
+</body>
+</html>
