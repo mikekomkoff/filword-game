@@ -1,5 +1,6 @@
 const SHARE_BOT_LINK = 'https://mikekomkoff.github.io/filword-game/';
 const SHARE_BOT_LINK_TG = 'https://t.me/filwordgame_bot';
+const WORD_COUNT = { easy: 5, normal: 5, medium: 12, hard: 12 };
 
 const WORD_COLORS = [
     '#E74C3C',
@@ -25,6 +26,7 @@ const App = {
     selectedTopics: new Set(),
     selectedGeneration: null,
     audioCtx: null,
+    sessionUsedWords: new Set(),
 
     init() {
         this.setupTelegram();
@@ -389,7 +391,7 @@ const App = {
                 return;
             }
             const shuffled = pool.sort(() => Math.random() - 0.5);
-            const count = config.sets[0].words.length || 5;
+            const count = WORD_COUNT[diff] || 5;
             chosen = { words: shuffled.slice(0, count), topic: gen.label };
         } else {
             let sets = config.sets;
@@ -402,8 +404,17 @@ const App = {
             }
             chosen = sets[Math.floor(Math.random() * sets.length)];
         }
-        const wordSet = chosen.words;
         const topic = chosen.topic;
+        const setWords = chosen.words;
+        const pool = [...new Set([...setWords, ...(TOPIC_WORDS[topic] || [])])].filter(w => w.length <= config.size);
+        const fresh = pool.filter(w => !this.sessionUsedWords.has(w));
+        if (fresh.length < (WORD_COUNT[diff] || 5)) {
+            this.sessionUsedWords.clear();
+        }
+        const effectivePool = fresh.length >= (WORD_COUNT[diff] || 5) ? fresh : pool;
+        const shuffled = effectivePool.sort(() => Math.random() - 0.5);
+        const wordSet = shuffled.slice(0, Math.min(WORD_COUNT[diff] || 5, shuffled.length));
+        wordSet.forEach(w => this.sessionUsedWords.add(w));
 
         if (this.game) this.game.destroy();
 
