@@ -334,18 +334,22 @@ h1 {
 }
 
 .about-link {
-    display: block;
-    text-align: center;
     font-size: 13px;
     color: var(--tg-theme-hint-color);
     text-decoration: none;
-    padding: 8px 0 4px;
     opacity: 0.6;
     transition: opacity 0.2s;
 }
 
 .about-link:hover {
     opacity: 1;
+}
+
+.links-row {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    padding: 8px 0 4px;
 }
 
 /* ─── GAME SCREEN ─── */
