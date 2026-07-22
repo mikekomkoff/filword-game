@@ -23,6 +23,7 @@
     <meta name="twitter:description" content="Филворды (венгерский кроссворд) – головоломка, где нужно находить слова на поле из букв. Правила, примеры, советы для начинающих.">
     <meta name="twitter:image" content="https://mikekomkoff.github.io/filword-game/og-image.png">
 
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
             --bg: #f5f5f7;
@@ -33,6 +34,18 @@
             --accent-hover: #3598d1;
             --border: #e0e0e0;
             --radius: 16px;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --bg: #000000;
+                --card: #1c1c1e;
+                --text: #ffffff;
+                --text-secondary: #8e8e93;
+                --border: #38383a;
+                --accent: #40a7e3;
+                --accent-hover: #6bbaf5;
+            }
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -442,5 +455,24 @@
             <p><a href="https://mikekomkoff.github.io/filword-game/">Filword Game</a> – бесплатная онлайн-игра. Работает как Telegram Mini App.</p>
         </footer>
     </div>
+    <script>
+        function applyTelegramTheme() {
+            if (window.Telegram && Telegram.WebApp && Telegram.WebApp.themeParams) {
+                const t = Telegram.WebApp.themeParams;
+                const r = document.documentElement;
+                if (t.bg_color) r.style.setProperty('--bg', t.bg_color);
+                if (t.section_bg_color) r.style.setProperty('--card', t.section_bg_color);
+                if (t.text_color) r.style.setProperty('--text', t.text_color);
+                if (t.hint_color) r.style.setProperty('--text-secondary', t.hint_color);
+                if (t.accent_text_color) r.style.setProperty('--accent', t.accent_text_color);
+                if (t.accent_text_color) r.style.setProperty('--accent-hover', t.accent_text_color);
+                if (t.section_separator_color) r.style.setProperty('--border', t.section_separator_color);
+            }
+        }
+        applyTelegramTheme();
+        if (Telegram && Telegram.WebApp) {
+            Telegram.WebApp.onEvent('themeChanged', applyTelegramTheme);
+        }
+    </script>
 </body>
 </html>
