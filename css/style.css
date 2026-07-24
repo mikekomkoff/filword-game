@@ -732,3 +732,55 @@ h1 {
         --cell-size: 54px;
     }
 }
+
+/* ─── DARK MODE ─── */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --tg-theme-bg-color: #121212;
+        --tg-theme-text-color: #e8e6e3;
+        --tg-theme-secondary-bg-color: #2c2c2e;
+        --tg-theme-section-bg-color: #1c1c1e;
+        --tg-theme-hint-color: #8e8e93;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .grid-cell {
+        background: #3a3a3c;
+        color: #e8e6e3;
+    }
+
+    .grid-cell.selected {
+        background: var(--tg-theme-button-color);
+        color: #ffffff;
+    }
+
+    .grid-cell.hint {
+        background: #ffd700;
+        color: #1c1c1e;
+    }
+
+    .diff-btn, .topic-btn {
+        background: #2c2c2e;
+        color: #e8e6e3;
+        border-color: #3a3a3c;
+    }
+
+    .diff-btn.active, .topic-btn.active {
+        background: var(--tg-theme-button-color);
+        color: #ffffff;
+    }
+
+    .card, .found-word, .modal-content, .share-result {
+        background: #1c1c1e;
+        color: #e8e6e3;
+    }
+
+    .footer-links a {
+        color: #8e8e93;
+    }
+
+    .next-level-hint {
+        color: #8e8e93;
+    }
+}
